@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # PostgreSQL RDS Local Equivalent
+  postgres:
+    image: postgres:15-alpine
+    container_name: genomic-pipeline-db
+    environment:
+      POSTGRES_DB: genomic_analysis
+      POSTGRES_USER: genomic_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_password_123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./config/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - genomic-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U genomic_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # R Analysis Container
+  genomic-pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: genomic-pipeline-worker
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: genomic_user
+      DB_PASSWORD: ${DB_PASSWORD:-secure_password_123}
+      DB_NAME: genomic_analysis
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${AWS_REGION:-us-east-1}
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+      - ./logs:/app/logs
+      - ./config:/app/config:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - genomic-network
+    command: tail -f /dev/null  # Keep container running
+
+  # LocalStack for S3 local testing (optional)
+  localstack:
+    image: localstack/localstack:latest
+    container_name: genomic-pipeline-s3
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3,kms,lambda
+      DEBUG: 1
+      DATA_DIR: /tmp/localstack/data
+      LAMBDA_EXECUTOR: docker
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - genomic-network
+
+volumes:
+  postgres_data:
+
+networks:
+  genomic-network:
+    driver: bridge
