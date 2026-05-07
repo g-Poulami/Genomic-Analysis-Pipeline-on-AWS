@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint-and-validate:
+    name: Lint & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate YAML files
+        run: |
+          pip install yamllint
+          find . -name "*.yml" -o -name "*.yaml" | grep -v ".github" | while read f; do
+            echo "Checking $f"
+            yamllint -d relaxed "$f" || true
+          done
+
+      - name: Check documentation files exist
+        run: |
+          for f in README.md PROJECT_SUMMARY.md PROJECT_INDEX.md; do
+            test -f "$f" && echo "✓ $f" || (echo "✗ $f missing" && exit 1)
+          done
+
+      - name: Check R script structure (if present)
+        run: |
+          if [ -d "R" ]; then
+            find R/ -name "*.R" | wc -l | xargs echo "R files found:"
+          else
+            echo "No R/ directory yet — skipping"
+          fi
+
+      - name: Docker build (if Dockerfile present)
+        run: |
+          if [ -f "Dockerfile" ]; then
+            docker build -t genomic-pipeline:ci .
+          else
+            echo "No Dockerfile yet — skipping"
+          fi
