@@ -360,8 +360,8 @@ If you use this pipeline in your research:
 
 ##  Support Contacts
 
-- **GitHub**: [Your repository URL]
-- **Email**: support@example.com
+- **GitHub**: https://github.com/g-Poulami/Genomic-Analysis-Pipeline-on-AWS
+- **Email**: poulamighosh738@gmail.com
 - **Issues**: GitHub Issues page
 - **Documentation**: See included markdown files
 
