@@ -1,5 +1,5 @@
 [![CI](https://github.com/g-Poulami/Genomic-Analysis-Pipeline-on-AWS/actions/workflows/ci.yml/badge.svg)](https://github.com/g-Poulami/Genomic-Analysis-Pipeline-on-AWS/actions/workflows/ci.yml) [![R](https://img.shields.io/badge/R-4.3%2B-276DC3?style=flat-square&logo=r)](https://www.r-project.org/) [![AWS](https://img.shields.io/badge/AWS-Cloud-FF9900?style=flat-square&logo=amazonaws)](https://aws.amazon.com/) [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker)](https://www.docker.com/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 #  Cloud-Native Genomic Analysis Pipeline on AWS - Project Delivery Summary
 
 ##  Project Complete
